@@ -1,0 +1,16 @@
+USE modelob_julio;
+
+DROP TABLE if EXISTS pagos;
+
+CREATE TABLE pagos(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+	pedidoId INT NOT NULL,
+	fecha DATETIME NOT NULL,
+	importe DECIMAL(10,2) NOT NULL CHECK (importe>=0),
+	revisado BOOLEAN NOT NULL DEFAULT FALSE,
+	FOREIGN KEY (pedidoId) REFERENCES pedidos(id)
+		ON DELETE CASCADE 
+		ON UPDATE CASCADE 
+);	
+	
+

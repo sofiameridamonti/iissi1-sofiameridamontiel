@@ -1,0 +1,82 @@
+@startuml
+' Configuración de estilos idéntica a la imagen
+skinparam linetype ortho
+skinparam shadowing true
+skinparam class {
+    BackgroundColor White
+    BorderColor Black
+    ArrowColor Black
+}
+skinparam note {
+    BackgroundColor White
+    BorderColor Black
+}
+
+' Enumerado
+enum EstadoCita <<enumeration>> {
+    Por confirmar
+    Confirmada
+    Cumplida
+    No asistida
+}
+
+' Entidades principales
+class Usuario {
+    email
+    contrasena
+    nombre
+    rol: RolUsuario
+}
+
+class Cliente <<Entity>> {
+}
+
+class Peluquero <<Entity>> {
+}
+
+class Administrador <<Entity>> {
+}
+
+class Cita <<Entity>> {
+    fecha
+    horaInicio
+    fechaHoraSolicitud
+    fechaHoraConfirmacion[0..1]
+    estado: EstadoCita
+}
+
+class Servicio <<Entity>> {
+    nombreServicio
+    duracionDefecto
+}
+
+' Herencia / Generalización
+Usuario <|-- Cliente
+Usuario <|-- Peluquero
+Usuario <|-- Administrador
+
+' Relaciones principales con multiplicidades y roles
+Cliente "1" -- "*" Cita : solicita
+Peluquero "0..1" -- "*" Cita : es preferido en
+Peluquero "0..1" -- "*" Cita : atiende definitivamente
+Administrador "0..1" -- "*" Cita : confirma
+
+Cita "*" -- "*" Servicio : incluye
+
+' Notas de Reglas de Negocio (RN) de la Peluquería
+note "RN-001: La hora de inicio\ndebe seleccionarse en un\ncalendario entre las\n8:00 am y las 8:00 pm,\nexcepto los domingos." as RN001
+Cita .. RN001
+
+note "RN-002: El cliente debe\nregistrarse obligatoriamente\ncon su correo electrónico\ny una contraseña." as RN002
+Cliente .. RN002
+
+note "RN-003: Si se seleccionan\nvarios servicios, la duración\nde la cita será la del servicio\nde mayor duración." as RN003
+(Cita, Servicio) .. RN003
+
+note "RN-004: Se debe registrar el\ntiempo transcurrido desde que\nla cita se solicita hasta que\nqueda confirmada." as RN004
+Cita .. RN004
+
+note "RN-005: Si el cliente no\nselecciona peluquero, el\nadministrador se encargará\nde asignarlo." as RN005
+Cita .. RN005
+
+@startuml
