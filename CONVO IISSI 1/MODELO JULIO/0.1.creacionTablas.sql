@@ -1,3 +1,4 @@
+USE modelo_julio;
 DROP TABLE IF EXISTS LineasPedido;
 DROP TABLE IF EXISTS Productos;
 DROP TABLE IF EXISTS TiposProducto;
