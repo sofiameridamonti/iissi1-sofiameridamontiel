@@ -1,4 +1,4 @@
---------------------------------------
+0--------------------------------------
 -- 1: Creación de la tabla Promociones
 
 CREATE TABLE Promociones (
