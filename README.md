@@ -1,12 +1,15 @@
 https://github.com/orgs/IISSI1-IS-2025/repositories
 
-----------------PLANTILLA PROCEDURE----------------
+-- =============================================================================
+-- PLANTILLA 1: STORED PROCEDURE (PROCEDIMIENTO ALMACENADO)
+-- =============================================================================
+
 DELIMITER //
 
 CREATE PROCEDURE nombre_procedimiento(
     IN p_parametro1 INT,
     IN p_parametro2 DECIMAL(10,2)
-    -- OUT p_resultado INT  -- (Descomentar solo si te piden un parámetro de salida)
+    -- OUT p_resultado INT  -- (Descomentar solo si la consigna pide un parámetro de salida)
 )
 BEGIN
     ------------------------------------------------------------------
@@ -22,7 +25,6 @@ BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
-        -- SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error inesperado en la base de datos';
     END;
 
     ------------------------------------------------------------------
@@ -48,7 +50,7 @@ BEGIN
         SET MESSAGE_TEXT = 'El registro especificado no existe.';
     END IF;
 
-    -- Validación B: Regla de negocio personalizada (Ejemplo: precio / stock / permiso)
+    -- Validación B: Regla de negocio personalizada
     IF v_variable2 < p_parametro2 THEN
         ROLLBACK;
         SIGNAL SQLSTATE '45000' 
@@ -74,13 +76,20 @@ BEGIN
     ------------------------------------------------------------------
     COMMIT;
 
-    DELIMITER //
+END //
 
-----------------PLANTILLA TRIGGER----------------
+DELIMITER ;
+
+
+-- =============================================================================
+-- PLANTILLA 2: TRIGGER (DISPARADOR AUTOMÁTICO)
+-- =============================================================================
+
+DELIMITER //
 
 CREATE TRIGGER nombre_trigger
-BEFORE INSERT ON NombreTabla  -- Opciones de tiempo: BEFORE | AFTER
-                              -- Opciones de evento: INSERT | UPDATE | DELETE
+BEFORE INSERT ON NombreTabla  -- Momento: BEFORE | AFTER
+                              -- Evento:  INSERT | UPDATE | DELETE
 FOR EACH ROW
 BEGIN
     ------------------------------------------------------------------
@@ -92,13 +101,13 @@ BEGIN
     ------------------------------------------------------------------
     -- 2. CAPTURA / LECTURA DE DATOS DE OTRAS TABLAS (SELECT ... INTO)
     ------------------------------------------------------------------
-    -- Ejemplo A: Consultar un dato de otra tabla relacionado con la fila entrante
+    -- Opción A: Consultar un dato de otra tabla relacionado con la fila entrante
     SELECT columna 
     INTO v_variable 
     FROM OtraTabla 
-    WHERE id = NEW.idRelacionado; -- Usa NEW en INSERT/UPDATE
+    WHERE id = NEW.idRelacionado; -- Usar NEW en INSERT/UPDATE
 
-    -- Ejemplo B: Comprobar si existe un conflicto/duplicado/incompatibilidad
+    -- Opción B: Comprobar si existe un conflicto/duplicado/incompatibilidad
     SELECT EXISTS (
         SELECT 1 
         FROM OtraTabla 
@@ -108,23 +117,21 @@ BEGIN
     ------------------------------------------------------------------
     -- 3. VALIDACIÓN DE REGLAS DE NEGOCIO Y ERROR (SIGNAL)
     ------------------------------------------------------------------
-    -- Si rompe alguna regla, cancelamos lanzando una excepción:
+    -- Si incumple la regla, cancelar operacion:
     IF v_existe THEN
         SIGNAL SQLSTATE '45000' 
         SET MESSAGE_TEXT = 'Mensaje de error exacto del enunciado.';
     END IF;
 
-    -- Ejemplo de validación directa con valores de la misma fila:
-    -- IF NEW.precio < 0 THEN ...
+    -- Ejemplo de validación directa sobre la misma fila:
+    -- IF NEW.precio < 0 THEN
+    --     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El precio no puede ser negativo.';
+    -- END IF;
 
     ------------------------------------------------------------------
     -- 4. ACCIONES SECUNDARIAS (Opcional, muy habitual en triggers AFTER)
     ------------------------------------------------------------------
     -- UPDATE OtraTabla SET stock = stock - NEW.unidades WHERE id = NEW.productoId;
-
-END //
-
-DELIMITER ;
 
 END //
 
